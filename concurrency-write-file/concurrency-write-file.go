@@ -6,6 +6,7 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"sync"
 	"time"
 )
 
@@ -15,17 +16,20 @@ func checkOpen(err error) {
 	}
 }
 
-func writeFile(path string) {
+func writeFile(path string, wg *sync.WaitGroup) {
 	file, err := os.Create(path)
 	checkOpen(err)
-	defer file.Close()
+	defer func() {
+		file.Close()
+		wg.Done()
+	}()
 
-	duration := time.Millisecond * time.Duration(rand.Intn(1000))
-	fmt.Printf("path: %s, duration: %d", path, duration)
+	duration := time.Millisecond * time.Duration(rand.Intn(3000))
 	time.Sleep(duration)
+	fmt.Printf("path: %s, duration: %d\n", path, duration)
 
 	writer := bufio.NewWriter(file)
-	writer.WriteString("hello world!")
+	writer.WriteString("1")
 	writer.Flush()
 }
 
@@ -34,10 +38,15 @@ func main() {
 	var pathList []string
 
 	for _, name := range fileNameList {
-		pathList = append(pathList, "concurrency-write-file/files/"+name+".txt")
+		pathList = append(pathList, fmt.Sprintf("concurrency-write-file/files/%s.txt", name))
 	}
 
+	var wg sync.WaitGroup
+
 	for _, path := range pathList {
-		go writeFile(path)
+		wg.Add(1)
+		go writeFile(path, &wg)
 	}
+
+	wg.Wait()
 }

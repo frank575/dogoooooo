@@ -13,7 +13,7 @@ import (
 // bufio
 // https://books.studygolang.com/The-Golang-Standard-Library-by-Example/chapter01/01.4.html
 func main() {
-	path := "file/read-file/a.txt"
+	path := "file/simple/read-file/a.txt"
 	file, err := os.Open(path)
 	defer file.Close()
 

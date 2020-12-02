@@ -1,3 +1,4 @@
+// !!併發寫入隨機檔案數的檔案值(+1)
 package main
 
 import (

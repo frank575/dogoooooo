@@ -1,3 +1,4 @@
+// !!併發(waitGroup 版本)寫入檔案
 package main
 
 import (
@@ -6,15 +7,16 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"sync"
 	"time"
 )
 
-func writeFile(path string, ch *chan string) {
+func writeFile(path string, wg *sync.WaitGroup) {
 	file, err := os.Create(path)
 	util.CheckOpen(err)
 	defer func() {
 		file.Close()
-		*ch <- path
+		wg.Done()
 	}()
 
 	duration := time.Millisecond * time.Duration(rand.Intn(3000))
@@ -26,25 +28,14 @@ func writeFile(path string, ch *chan string) {
 	writer.Flush()
 }
 
-func checkChannel(ch *chan string, i *int, size int) {
-	*i++
-	if *i == size {
-		close(*ch)
-	}
-}
-
 func main() {
 	fileNameList := util.CreatePathList()
-
-	ch := make(chan string, len(fileNameList.List))
+	var wg sync.WaitGroup
 
 	for _, path := range fileNameList.GetFilePathList() {
-		go writeFile(path, &ch)
+		wg.Add(1)
+		go writeFile(path, &wg)
 	}
 
-	i := 0
-	for path := range ch {
-		checkChannel(&ch, &i, len(fileNameList.List))
-		fmt.Printf("%s done!\n", path)
-	}
+	wg.Wait()
 }

@@ -11,7 +11,7 @@ import (
 
 func checkOpen(err error) {
 	if err != nil {
-		log.Fatalf("檔案開啟失敗：%s", err)
+		log.Fatalf("Error when opening file: %s", err)
 	}
 }
 

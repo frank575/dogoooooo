@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 )
 
@@ -19,9 +20,9 @@ func readFile(path string, wg *sync.WaitGroup) {
 
 	for r.Scan() {
 		text := r.Text()
-		fmt.Printf("path: %s, txt: %s\n", path, text)
 		intTxt, _ := strconv.Atoi(text)
 		num = intTxt + 1
+		fmt.Printf("path: %s, txt: %s -> %d\n", path, text, num)
 		go writeFile(path, num, &*wg)
 	}
 	util.CheckRead(r.Err())
@@ -40,7 +41,7 @@ func writeFile(path string, num int, wg *sync.WaitGroup) {
 	w.Flush()
 }
 
-func main() {
+func applicationDo() {
 	fileNameList := util.CreatePathList()
 	var wg sync.WaitGroup
 	for _, path := range fileNameList.GetRandFilePathList(3) {
@@ -49,4 +50,16 @@ func main() {
 	}
 	wg.Wait()
 	fmt.Println("Done!")
+
+	answer := ""
+	fmt.Println("Please enter - reset? [Y/N (default)]")
+	fmt.Scanln(&answer)
+
+	if strings.ToUpper(answer) == "Y" {
+		applicationDo()
+	}
+}
+
+func main() {
+	applicationDo()
 }

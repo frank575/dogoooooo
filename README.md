@@ -21,7 +21,7 @@ go run file/readme-generate/main.go
     - [read-file](./file/simple/read-file) 基本讀取檔案
     - [write-file](./file/simple/write-file) 基本寫入檔案
 - [regexp](./regexp) 
-  - [1](./regexp/1) 基本正則範例
+  - [1](./regexp/1) 基本正則
 <!--TOC-->
 
-## 大練習項目介紹
+## 大項目介紹

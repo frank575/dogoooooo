@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"sync"
 )
 
 func checkOpen(err error) {
@@ -21,7 +22,7 @@ func checkRead(err error) {
 	}
 }
 
-func readFile(path string) {
+func readFile(path string, wg *sync.WaitGroup) {
 	file, err := os.Open(path)
 	checkOpen(err)
 	defer file.Close()
@@ -34,16 +35,18 @@ func readFile(path string) {
 		fmt.Printf("path: %s, txt: %s\n", path, text)
 		intTxt, _ := strconv.Atoi(text)
 		num = intTxt + 1
-		// TODO go
-		writeFile(path, num)
+		go writeFile(path, num, &*wg)
 	}
 	checkRead(r.Err())
 }
 
-func writeFile(path string, num int) {
+func writeFile(path string, num int, wg *sync.WaitGroup) {
 	file, err := os.Create(path)
 	checkOpen(err)
-	defer file.Close()
+	defer func() {
+		file.Close()
+		wg.Done()
+	}()
 
 	w := bufio.NewWriter(file)
 	w.WriteString(strconv.Itoa(num))
@@ -52,8 +55,11 @@ func writeFile(path string, num int) {
 
 func main() {
 	fileNameList := concurrency_file.CreatePathList()
+	var wg sync.WaitGroup
 	for _, path := range fileNameList.GetRandFilePathList(3) {
-		// TODO go
-		readFile(path)
+		wg.Add(1)
+		go readFile(path, &wg)
 	}
+	wg.Wait()
+	fmt.Println("Done!")
 }

@@ -1,9 +1,10 @@
-// !!生成 README 目錄腳本
+// 生成 README 的項目目錄結構腳本
 package main
 
 import (
 	"bufio"
 	"dogoooooo/file/util"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -64,10 +65,10 @@ func createTOCInfoList(ignoreList *[]string, path string) []FileInfo {
 				line, _, err := r.ReadLine()
 				util.CheckRead(err)
 
-				reg, _ := regexp.Compile("//\\s!!.+")
+				reg, _ := regexp.Compile("//\\s.+")
 				strLine := string(line)
 				if reg.MatchString(strLine) {
-					info = strLine[5:]
+					info = strLine[3:]
 				}
 
 				mainFile.Close()
@@ -81,7 +82,7 @@ func createTOCInfoList(ignoreList *[]string, path string) []FileInfo {
 	return children
 }
 
-func writeTOCList(tab string, path string, title *string, fileInfoList *[]FileInfo) {
+func writeTOCList(tab string, path string, strTOC *string, fileInfoList *[]FileInfo) {
 	for _, info := range *fileInfoList {
 		name := info.name
 		src := path + "/" + name
@@ -89,34 +90,48 @@ func writeTOCList(tab string, path string, title *string, fileInfoList *[]FileIn
 		children := info.children
 		if description == "" {
 			if len(children) > 0 {
-				*title += fmt.Sprintf("%s- [%s](%s) %s\n", tab, name, src, description)
+				*strTOC += fmt.Sprintf("%s- [%s](%s) %s\n", tab, name, src, description)
 			}
 		} else {
-			*title += fmt.Sprintf("%s- [%s](%s) %s\n", tab, name, src, description)
+			*strTOC += fmt.Sprintf("%s- [%s](%s) %s\n", tab, name, src, description)
 		}
-		writeTOCList(tab+"  ", src, &*title, &children)
+		writeTOCList(tab+"  ", src, &*strTOC, &children)
 	}
 }
 
 func main() {
-	f, err := os.Create("README.md")
-	util.CheckOpen(err)
+	readmeName := "README.md"
+	rf, err := os.Open(readmeName)
+	util.CheckRead(err)
+	defer rf.Close()
 
-	w := bufio.NewWriter(f)
-	title := "# 狗語言練習範例\n" +
-		"```command\n" +
-		"# 生成 README.md 指令(開發中)\n" +
-		"go run file/readme-generate/main.go\n" +
-		"```\n" +
-		"## 項目結構\n" +
-		"\n"
+	r := bufio.NewScanner(rf)
+	readmeText := ""
+
+	for r.Scan() {
+		txt := r.Text()
+		readmeText += txt + "\n"
+	}
+
+	regTOC, _ := regexp.Compile("<!--TOC-->")
+	TOCIndex := regTOC.FindAllIndex([]byte(readmeText), -1)
+	if len(TOCIndex) < 2 {
+		panic(errors.New("<!--TOC--> 魔法鎮遭破壞，請確認 README 格式是否正確"))
+	}
+	before, after := readmeText[:TOCIndex[0][1]], readmeText[TOCIndex[1][0]:]
+
+	wf, err := os.Create(readmeName)
+	util.CheckOpen(err)
+	defer wf.Close()
+
+	w := bufio.NewWriter(wf)
 
 	ignoreList := getIgnoreFile()
 	var fileInfoList []FileInfo
 	fileInfoList = createTOCInfoList(&ignoreList, ".")
+	strTOC := ""
+	writeTOCList("", ".", &strTOC, &fileInfoList)
 
-	writeTOCList("", ".", &title, &fileInfoList)
-
-	w.WriteString(fmt.Sprintf(title))
+	w.WriteString(fmt.Sprintf("%s\n%s%s", before, strTOC, after))
 	w.Flush()
 }

@@ -1,4 +1,4 @@
-// !!基本讀取檔案
+// 基本讀取檔案
 package main
 
 import (

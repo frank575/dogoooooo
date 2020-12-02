@@ -1,4 +1,4 @@
-// !!沒什麼內容的正則範例
+// 基本正則範例
 package main
 
 import (
@@ -22,5 +22,14 @@ func main() {
 
 	r, _ := regexp.Compile("[A-z]{3}\\s+")
 	// n -> 取幾筆，-1 為全部
-	fmt.Println(r.FindAllString("hello hello", -1)) // [llo ]
+	fmt.Println("r:", r.FindAllString("hello hello", -1)) // [llo ]
+
+	r2, _ := regexp.Compile("am")
+	r2Word := "i\n" +
+		"      am\n" +
+		"apple!" +
+		"i\n" +
+		"am\n" +
+		"    guava!"
+	fmt.Println("r2:", r2.FindAllIndex([]byte(r2Word), -1))
 }

@@ -1,4 +1,4 @@
-// !!併發(channel 版本)寫入檔案
+// 併發(channel 版本)寫入檔案
 package main
 
 import (

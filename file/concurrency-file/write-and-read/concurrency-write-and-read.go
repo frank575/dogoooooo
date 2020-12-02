@@ -2,29 +2,16 @@ package main
 
 import (
 	"bufio"
-	concurrency_file "dogoooooo/concurrency-file"
+	"dogoooooo/file/util"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"sync"
 )
 
-func checkOpen(err error) {
-	if err != nil {
-		log.Fatalf("Error when opening file: %s", err)
-	}
-}
-
-func checkRead(err error) {
-	if err != nil {
-		log.Fatalf("Error while reading file: %s", err)
-	}
-}
-
 func readFile(path string, wg *sync.WaitGroup) {
 	file, err := os.Open(path)
-	checkOpen(err)
+	util.CheckOpen(err)
 	defer file.Close()
 
 	r := bufio.NewScanner(file)
@@ -37,12 +24,12 @@ func readFile(path string, wg *sync.WaitGroup) {
 		num = intTxt + 1
 		go writeFile(path, num, &*wg)
 	}
-	checkRead(r.Err())
+	util.CheckRead(r.Err())
 }
 
 func writeFile(path string, num int, wg *sync.WaitGroup) {
 	file, err := os.Create(path)
-	checkOpen(err)
+	util.CheckOpen(err)
 	defer func() {
 		file.Close()
 		wg.Done()
@@ -54,7 +41,7 @@ func writeFile(path string, num int, wg *sync.WaitGroup) {
 }
 
 func main() {
-	fileNameList := concurrency_file.CreatePathList()
+	fileNameList := util.CreatePathList()
 	var wg sync.WaitGroup
 	for _, path := range fileNameList.GetRandFilePathList(3) {
 		wg.Add(1)

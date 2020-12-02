@@ -2,23 +2,16 @@ package main
 
 import (
 	"bufio"
-	concurrency_file "dogoooooo/concurrency-file"
+	"dogoooooo/file/util"
 	"fmt"
-	"log"
 	"math/rand"
 	"os"
 	"time"
 )
 
-func checkOpen(err error) {
-	if err != nil {
-		log.Fatalf("Error when opening file: %s", err)
-	}
-}
-
 func writeFile(path string, ch *chan string) {
 	file, err := os.Create(path)
-	checkOpen(err)
+	util.CheckOpen(err)
 	defer func() {
 		file.Close()
 		*ch <- path
@@ -41,7 +34,7 @@ func checkChannel(ch *chan string, i *int, size int) {
 }
 
 func main() {
-	fileNameList := concurrency_file.CreatePathList()
+	fileNameList := util.CreatePathList()
 
 	ch := make(chan string, len(fileNameList.List))
 

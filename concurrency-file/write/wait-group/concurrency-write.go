@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	concurrency_file "dogoooooo/concurrency-file"
 	"fmt"
 	"log"
 	"math/rand"
@@ -34,16 +35,10 @@ func writeFile(path string, wg *sync.WaitGroup) {
 }
 
 func main() {
-	fileNameList := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"}
-	var pathList []string
-
-	for _, name := range fileNameList {
-		pathList = append(pathList, fmt.Sprintf("concurrency-write-file/files/%s.txt", name))
-	}
-
+	fileNameList := concurrency_file.CreatePathList()
 	var wg sync.WaitGroup
 
-	for _, path := range pathList {
+	for _, path := range fileNameList.GetFilePathList() {
 		wg.Add(1)
 		go writeFile(path, &wg)
 	}

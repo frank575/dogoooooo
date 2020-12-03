@@ -44,7 +44,7 @@ func checkIgnore(ignoreList *[]string, fileName *string) bool {
 	return isReplace
 }
 
-func createTOCInfoList(ignoreList *[]string, path string) []FileInfo {
+func createTOCInfoList(ignoreList *[]string, path string, extension string) []FileInfo {
 	//f, err := os.Getwd()
 	//util.CheckGetwd(err)
 
@@ -60,7 +60,7 @@ func createTOCInfoList(ignoreList *[]string, path string) []FileInfo {
 			path := fmt.Sprintf("%s/%s", path, fileName)
 			info := ""
 
-			if mainFile, err := os.Open(path + "/" + "main.go"); err == nil {
+			if mainFile, err := os.Open(path + "/" + "main." + extension); err == nil {
 				r := bufio.NewReader(mainFile)
 				line, _, err := r.ReadLine()
 				util.CheckRead(err)
@@ -74,7 +74,7 @@ func createTOCInfoList(ignoreList *[]string, path string) []FileInfo {
 				mainFile.Close()
 			}
 
-			children = append(children, FileInfo{fileName, info, createTOCInfoList(&*ignoreList, path)})
+			children = append(children, FileInfo{fileName, info, createTOCInfoList(&*ignoreList, path, extension)})
 			//fmt.Println(path, fileName)
 		}
 	}
@@ -127,8 +127,12 @@ func main() {
 	w := bufio.NewWriter(wf)
 
 	ignoreList := getIgnoreFile()
+	extension := "go"
+	if len(os.Args) > 1 {
+		extension = os.Args[1]
+	}
 	var fileInfoList []FileInfo
-	fileInfoList = createTOCInfoList(&ignoreList, ".")
+	fileInfoList = createTOCInfoList(&ignoreList, ".", extension)
 	strTOC := ""
 	writeTOCList("", ".", &strTOC, &fileInfoList)
 

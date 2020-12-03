@@ -18,17 +18,20 @@ type FileInfo struct {
 }
 
 func getIgnoreFile() []string {
-	f, err := os.Open(".gitignore")
-	util.CheckOpen(err)
-	r := bufio.NewScanner(f)
-
 	var ignoreList []string
+	f, err := os.Open(".gitignore")
+	//util.CheckOpen(err)
+	defer f.Close()
 
-	for r.Scan() {
-		text := r.Text()
-		ignoreList = append(ignoreList, text)
+	if err != nil {
+	} else {
+		r := bufio.NewScanner(f)
+		for r.Scan() {
+			text := r.Text()
+			ignoreList = append(ignoreList, text)
+		}
+		util.CheckRead(r.Err())
 	}
-	util.CheckRead(r.Err())
 
 	return ignoreList
 }
@@ -120,12 +123,6 @@ func main() {
 	}
 	before, after := readmeText[:TOCIndex[0][1]], readmeText[TOCIndex[1][0]:]
 
-	wf, err := os.Create(readmeName)
-	util.CheckOpen(err)
-	defer wf.Close()
-
-	w := bufio.NewWriter(wf)
-
 	ignoreList := getIgnoreFile()
 	extension := "go"
 	if len(os.Args) > 1 {
@@ -136,6 +133,11 @@ func main() {
 	strTOC := ""
 	writeTOCList("", ".", &strTOC, &fileInfoList)
 
+	wf, err := os.Create(readmeName)
+	util.CheckOpen(err)
+	defer wf.Close()
+
+	w := bufio.NewWriter(wf)
 	w.WriteString(fmt.Sprintf("%s\n%s%s", before, strTOC, after))
 	w.Flush()
 }

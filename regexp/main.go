@@ -1,4 +1,4 @@
-// 基本正則
+// ##regexp:::基本正則##
 package main
 
 import (

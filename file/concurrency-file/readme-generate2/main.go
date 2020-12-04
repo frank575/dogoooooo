@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"os"
 	"regexp"
+	"sort"
 	"strings"
 	"sync"
 )
@@ -19,7 +20,7 @@ type FileInfo struct {
 	path     string
 }
 
-func getFileInfo(infoList *[]FileInfo, path *string) {
+func getFileInfo(mx *sync.Mutex, infoList *[]FileInfo, typeIdMap *map[string]int, path *string) {
 	f, _ := os.Open(*path)
 	r := bufio.NewScanner(f)
 	reg, _ := regexp.Compile("##.+##")
@@ -31,6 +32,8 @@ func getFileInfo(infoList *[]FileInfo, path *string) {
 
 	info := reg.FindAllString(fileContext, 1)
 	if len(info) > 0 {
+		typeId := 0
+		mapLen := len(*typeIdMap)
 		hashReg, _ := regexp.Compile("\\s?##\\s?")
 		info := hashReg.ReplaceAllString(info[0], "")
 		sp := strings.Split(info, ":::")
@@ -39,14 +42,23 @@ func getFileInfo(infoList *[]FileInfo, path *string) {
 			typeName = sp[0]
 			name = sp[1]
 		} else {
+			typeName = "無分類"
 			name = sp[0]
 		}
-		//TODO typeId 還沒撈
-		*infoList = append(*infoList, FileInfo{1, typeName, name, *path})
+		if id, ok := (*typeIdMap)[typeName]; ok {
+			typeId = id
+		} else {
+			mx.Lock()
+			_id := mapLen
+			(*typeIdMap)[typeName] = _id
+			typeId = _id
+			mx.Unlock()
+		}
+		*infoList = append(*infoList, FileInfo{typeId, typeName, name, *path})
 	}
 }
 
-func getTOCList(wg *sync.WaitGroup, ignoreList *[]string, infoList *[]FileInfo, path string) {
+func getTOCList(wg *sync.WaitGroup, mx *sync.Mutex, ignoreList *[]string, infoList *[]FileInfo, typeIdMap *map[string]int, path string) {
 	dirList, err := ioutil.ReadDir(path)
 	util.CheckReadDir(err)
 
@@ -62,9 +74,9 @@ func getTOCList(wg *sync.WaitGroup, ignoreList *[]string, infoList *[]FileInfo, 
 
 		if isDirAndNotIgnore {
 			wg.Add(1)
-			go getTOCList(wg, ignoreList, infoList, newPath)
+			go getTOCList(wg, mx, ignoreList, infoList, typeIdMap, newPath)
 		} else if notDirAndNotIgnore {
-			getFileInfo(infoList, &newPath)
+			getFileInfo(mx, infoList, typeIdMap, &newPath)
 		}
 		wg.Done()
 	}
@@ -74,14 +86,24 @@ func getTOCList(wg *sync.WaitGroup, ignoreList *[]string, infoList *[]FileInfo, 
 
 func main() {
 	var wg sync.WaitGroup
-	//before, after := util.GetReadmeText()
-	ignoreList := util.GetIgnoreFile()
+	var mx sync.Mutex
 	var infoList []FileInfo
+	before, after := util.GetReadmeText()
+	ignoreList := util.GetIgnoreFile()
+	strTOC := ""
+	typeIdMap := map[string]int{"無分類": 0}
 
 	wg.Add(1)
-	go getTOCList(&wg, &ignoreList, &infoList, ".")
+	//TODO 可能會少資料
+	go getTOCList(&wg, &mx, &ignoreList, &infoList, &typeIdMap, ".")
 	wg.Wait()
 
+	sort.Slice(infoList, func(i, j int) bool {
+		return infoList[i].typeId < infoList[j].typeId
+	})
+
+	fmt.Println(len(infoList))
 	fmt.Print(infoList)
-	//util.WriteReadme(before, after, "")
+	return
+	util.WriteReadme(before, after, strTOC)
 }

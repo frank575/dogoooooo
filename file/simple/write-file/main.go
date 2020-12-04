@@ -1,4 +1,4 @@
-// 基本寫入檔案
+// ##file:::基本寫入檔案##
 package main
 
 import (

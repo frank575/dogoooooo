@@ -1,4 +1,4 @@
-//##file:::(舊)生成 README 目錄簡述##
+// toc#file:::(舊)生成 README 目錄簡述#toc
 package main
 
 import (

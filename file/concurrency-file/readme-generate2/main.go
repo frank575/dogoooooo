@@ -1,4 +1,4 @@
-//##file:::(新)併發生成 README 目錄簡述##
+// toc#file:::(新)併發生成 README 目錄簡述#toc
 package main
 
 import (
@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"regexp"
 	"sort"
 	"strings"
@@ -18,10 +19,10 @@ type FileInfo struct {
 	path string
 }
 
-func getFileInfo(mx *sync.Mutex, infoListMap *map[string][]FileInfo, path *string) {
+func getFileInfo(mx *sync.Mutex, wg *sync.WaitGroup, infoListMap *map[string][]FileInfo, path *string) {
 	f, _ := os.Open(*path)
 	r := bufio.NewScanner(f)
-	reg, _ := regexp.Compile("##.+##")
+	reg, _ := regexp.Compile(`(?i)toc#.*#toc.*`)
 	fileContext := ""
 
 	for r.Scan() {
@@ -30,7 +31,7 @@ func getFileInfo(mx *sync.Mutex, infoListMap *map[string][]FileInfo, path *strin
 
 	info := reg.FindAllString(fileContext, 1)
 	if len(info) > 0 {
-		hashReg, _ := regexp.Compile("\\s?##\\s?")
+		hashReg, _ := regexp.Compile(`(?i)(toc#)|(#toc.*)`)
 		info := hashReg.ReplaceAllString(info[0], "")
 		sp := strings.Split(info, ":::")
 		var name, typeName string
@@ -49,6 +50,8 @@ func getFileInfo(mx *sync.Mutex, infoListMap *map[string][]FileInfo, path *strin
 		}
 		mx.Unlock()
 	}
+
+	wg.Done()
 }
 
 func getTOCList(wg *sync.WaitGroup, mx *sync.Mutex, ignoreList *[]string, infoListMap *map[string][]FileInfo, path string) {
@@ -56,7 +59,6 @@ func getTOCList(wg *sync.WaitGroup, mx *sync.Mutex, ignoreList *[]string, infoLi
 	util.CheckReadDir(err)
 
 	for i := range dirList {
-		wg.Add(1)
 		file := dirList[i]
 		fileName := file.Name()
 		isDir := file.IsDir()
@@ -65,14 +67,16 @@ func getTOCList(wg *sync.WaitGroup, mx *sync.Mutex, ignoreList *[]string, infoLi
 		notDirAndNotIgnore := !isDir && notIgnore
 		newPath := path + "/" + fileName
 
+		exec.Command("clear")
+		fmt.Println(newPath)
+
 		if isDirAndNotIgnore {
 			wg.Add(1)
 			go getTOCList(wg, mx, ignoreList, infoListMap, newPath)
 		} else if notDirAndNotIgnore {
-			// TODO 也要支持 goroutine
-			getFileInfo(mx, infoListMap, &newPath)
+			wg.Add(1)
+			go getFileInfo(mx, wg, infoListMap, &newPath)
 		}
-		wg.Done()
 	}
 
 	wg.Done()
@@ -100,13 +104,13 @@ func main() {
 	var mx sync.Mutex
 	before, after := util.GetReadmeText()
 	ignoreList := util.GetIgnoreFile(".gitignore")
+	//TODO .custom-ignore -> .custom-generate 要更新 ROOT_PATH= 及 IGNORE=
 	ignoreList = append(ignoreList, util.GetIgnoreFile(".custom-ignore")...)
 	strTOC := ""
 	infoListMap := map[string][]FileInfo{}
 
 	wg.Add(1)
-	//TODO custom-generate 要更新 ROOT_PATH= 及 IGNORE=
-	go getTOCList(&wg, &mx, &ignoreList, &infoListMap, ".")
+	getTOCList(&wg, &mx, &ignoreList, &infoListMap, ".")
 	wg.Wait()
 
 	createTOC(&infoListMap, &strTOC)

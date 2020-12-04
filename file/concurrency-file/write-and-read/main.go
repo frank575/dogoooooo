@@ -1,4 +1,4 @@
-// ##file:::併發寫入自訂檔案數的隨機檔案值(+1)##
+// toc#file:::併發寫入自訂檔案數的隨機檔案值(+1)#toc
 package main
 
 import (

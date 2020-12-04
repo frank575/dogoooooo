@@ -1,4 +1,4 @@
-// ##file:::基本寫入檔案##
+// toc#file:::基本寫入檔案#toc
 package main
 
 import (

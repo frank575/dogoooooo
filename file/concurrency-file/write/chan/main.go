@@ -1,4 +1,4 @@
-//##file:::併發(channel 版本)寫入檔案##
+// toc#file:::併發(channel 版本)寫入檔案#toc
 package main
 
 import (

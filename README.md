@@ -6,22 +6,22 @@
 
 ```command
 # 使用以下指令生成項目目錄結構
-go run file/readme-generate/main.go
+go run file/concurrency-file/readme-generate2/main.go
 ```
 
 <!--TOC-->
-- [file](./file) 
-  - [concurrency-file](./file/concurrency-file) 
-    - [write](./file/concurrency-file/write) 
-      - [chan](./file/concurrency-file/write/chan) 併發(channel 版本)寫入檔案
-      - [wait-group](./file/concurrency-file/write/wait-group) 併發(waitGroup 版本)寫入檔案
-    - [write-and-read](./file/concurrency-file/write-and-read) 併發寫入自訂檔案數的隨機檔案值(+1)
-  - [readme-generate](./file/readme-generate) 生成 README 的項目目錄結構腳本
-  - [simple](./file/simple) 
-    - [read-file](./file/simple/read-file) 基本讀取檔案
-    - [write-file](./file/simple/write-file) 基本寫入檔案
-- [reflect](./reflect) 基本反射
-- [regexp](./regexp) 基本正則
+- **1. file**
+  - [1-1. (舊)生成 README 目錄簡述](./file/readme-generate/main.go)
+  - [1-2. 併發寫入自訂檔案數的隨機檔案值(+1)](./file/concurrency-file/write-and-read/main.go)
+  - [1-3. 基本寫入檔案](./file/simple/write-file/main.go)
+  - [1-4. (新)併發生成 README 目錄簡述](./file/concurrency-file/readme-generate2/main.go)
+  - [1-5. 併發(channel 版本)寫入檔案](./file/concurrency-file/write/chan/main.go)
+  - [1-6. 併發(waitGroup 版本)寫入檔案](./file/concurrency-file/write/wait-group/main.go)
+  - [1-7. 基本讀取檔案](./file/simple/read-file/main.go)
+- **2. reflect**
+  - [2-1. 基本反射](./reflect/main.go)
+- **3. regexp**
+  - [3-1. 基本正則](./regexp/main.go)
 <!--TOC-->
 
 # 大項目介紹

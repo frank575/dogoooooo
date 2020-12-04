@@ -10,9 +10,9 @@ import (
 
 const readmeName = "README.md"
 
-func GetIgnoreFile() []string {
+func GetIgnoreFile(fileName string) []string {
 	var ignoreList []string
-	f, err := os.Open(".gitignore")
+	f, err := os.Open(fileName)
 	//CheckOpen(err)
 	defer f.Close()
 

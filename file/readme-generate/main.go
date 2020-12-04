@@ -73,7 +73,7 @@ func writeTOCList(tab string, path string, strTOC *string, fileInfoList *[]FileI
 
 func main() {
 	before, after := util.GetReadmeText()
-	ignoreList := util.GetIgnoreFile()
+	ignoreList := util.GetIgnoreFile(".gitignore")
 
 	extension := "go"
 	if len(os.Args) > 1 {

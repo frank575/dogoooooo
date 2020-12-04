@@ -53,4 +53,36 @@ func main() {
 	if originalUser, ok := iUser.(User); ok {
 		fmt.Println(11, originalUser.Name, originalUser.Age) // rose 25
 	}
+
+	// make 實例創建
+	intSlice := make([]int, 0)
+	intMap := make(map[string]int)
+
+	sliceType := reflect.TypeOf(intSlice)
+	mapType := reflect.TypeOf(intMap)
+
+	reflectSlice := reflect.MakeSlice(sliceType, 0, 0)
+	reflectMap := reflect.MakeMap(mapType)
+
+	v := 10
+	rv := reflect.ValueOf(v)
+	reflectSlice = reflect.Append(reflectSlice, rv)
+	intSlice2 := reflectSlice.Interface().([]int)
+	fmt.Println(12, intSlice, intSlice2) // [] [10]
+
+	k := "hello"
+	rk := reflect.ValueOf(k)
+	reflectMap.SetMapIndex(rk, rv)
+	intMap2 := reflectMap.Interface().(map[string]int)
+	fmt.Println(13, intMap, intMap2) // map[] map[hello:10]
+
+	// make 創建函數
+	//funType := reflect.TypeOf()
+}
+
+func count(len int) (sum int) {
+	for i := 0; i < len; i++ {
+		sum++
+	}
+	return
 }

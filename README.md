@@ -2,10 +2,10 @@
 
 - [我的筆記 - go 語法篇](https://hackmd.io/IrpAln1QQ4GsVW-_fW6nNA?view)
 
-# 項目目錄結構
+# 小項目練習
 
 ```command
-# 使用以下指令生成項目目錄結構
+# 使用以下指令生成目錄
 go run file/concurrency-file/readme-generate2/main.go
 ```
 

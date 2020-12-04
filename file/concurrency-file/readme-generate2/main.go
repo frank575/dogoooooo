@@ -69,6 +69,7 @@ func getTOCList(wg *sync.WaitGroup, mx *sync.Mutex, ignoreList *[]string, infoLi
 			wg.Add(1)
 			go getTOCList(wg, mx, ignoreList, infoListMap, newPath)
 		} else if notDirAndNotIgnore {
+			// TODO 也要支持 goroutine
 			getFileInfo(mx, infoListMap, &newPath)
 		}
 		wg.Done()
@@ -104,6 +105,7 @@ func main() {
 	infoListMap := map[string][]FileInfo{}
 
 	wg.Add(1)
+	//TODO custom-generate 要更新 ROOT_PATH= 及 IGNORE=
 	go getTOCList(&wg, &mx, &ignoreList, &infoListMap, ".")
 	wg.Wait()
 

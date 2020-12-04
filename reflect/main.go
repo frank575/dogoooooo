@@ -1,4 +1,4 @@
-// 基本反射
+//##reflect:::基本反射##
 package main
 
 import (

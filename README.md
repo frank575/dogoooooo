@@ -2,7 +2,7 @@
 
 - [我的筆記 - go 語法篇](https://hackmd.io/IrpAln1QQ4GsVW-_fW6nNA?view)
 
-# 小項目練習
+# 基礎
 
 ```command
 # 使用以下指令生成目錄
@@ -24,4 +24,4 @@ go run file/concurrency-file/readme-generate2/main.go
   - [3-1. 基本正則](basic/regexp/main.go)
 <!--TOC-->
 
-# 大項目介紹
+# 專欄

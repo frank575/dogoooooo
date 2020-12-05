@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strings"
 )
 
 const readmeName = "README.md"
@@ -20,8 +21,10 @@ func GetGitIgnoreFile() []string {
 	} else {
 		r := bufio.NewScanner(f)
 		for r.Scan() {
-			text := r.Text()
-			ignoreList = append(ignoreList, text)
+			text := strings.TrimSpace(r.Text())
+			if text != "" {
+				ignoreList = append(ignoreList, text)
+			}
 		}
 		CheckRead(r.Err())
 	}
@@ -65,7 +68,7 @@ func WriteReadme(before, after, toc string) {
 func CheckIgnore(ignoreList *[]string, fileName *string) bool {
 	isReplace := false
 	for _, ignoreName := range *ignoreList {
-		if *fileName == ignoreName {
+		if strings.Contains(*fileName, ignoreName) {
 			isReplace = true
 			break
 		}

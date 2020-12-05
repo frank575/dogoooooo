@@ -60,19 +60,20 @@ func getTOCList(wg *sync.WaitGroup, mx *sync.Mutex, ignoreList *[]string, infoLi
 		file := dirList[i]
 		fileName := file.Name()
 		isDir := file.IsDir()
-		notIgnore := !util.CheckIgnore(ignoreList, &fileName)
+		newPath := path + "/" + fileName
+		notIgnore := !util.CheckIgnore(ignoreList, &newPath)
 		isDirAndNotIgnore := isDir && notIgnore
 		notDirAndNotIgnore := !isDir && notIgnore
-		newPath := path + "/" + fileName
 
 		exec.Command("clear")
-		fmt.Println(newPath)
 
 		if isDirAndNotIgnore {
 			wg.Add(1)
+			fmt.Println("dir:", newPath)
 			go getTOCList(wg, mx, ignoreList, infoListMap, newPath)
 		} else if notDirAndNotIgnore {
 			wg.Add(1)
+			fmt.Println("file:", newPath)
 			go getFileInfo(mx, wg, infoListMap, &newPath)
 		}
 	}
@@ -115,10 +116,12 @@ func getGTOCSetting() (ignoreList []string, rootPath string) {
 			sp := strings.Split(line, rp)
 			rootPath = strings.TrimSpace(sp[1])
 		} else if rIgnore, _ := regexp.Compile(ig); rIgnore.MatchString(line) {
-			reg, _ := regexp.Compile(",\\s*")
+			reg, _ := regexp.Compile("\\s*,\\s*")
 			sp := strings.Replace(line, ig, "", 1)
-			list := reg.Split(sp, -1)
-			ignoreList = list
+			if sp != "" {
+				list := reg.Split(sp, -1)
+				ignoreList = list
+			}
 		}
 	}
 

@@ -3,7 +3,7 @@ package main
 
 import (
 	"bufio"
-	"dogoooooo/file/util"
+	"dogoooooo/basic/file/util"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -73,7 +73,7 @@ func writeTOCList(tab string, path string, strTOC *string, fileInfoList *[]FileI
 
 func main() {
 	before, after := util.GetReadmeText()
-	ignoreList := util.GetIgnoreFile(".gitignore")
+	ignoreList := util.GetGitIgnoreFile()
 
 	extension := "go"
 	if len(os.Args) > 1 {

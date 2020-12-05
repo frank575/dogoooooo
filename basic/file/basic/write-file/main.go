@@ -3,7 +3,7 @@ package main
 
 import (
 	"bufio"
-	"dogoooooo/file/util"
+	"dogoooooo/basic/file/util"
 	"os"
 )
 
@@ -13,7 +13,7 @@ import (
 // 如何在 golang 讀取/寫入 檔案
 // https://blog.iphpo.com/blog/2017/03/%E5%A6%82%E4%BD%95%E5%9C%A8-golang-%E8%AE%80%E5%8F%96/%E5%AF%AB%E5%85%A5%E6%AA%94%E6%A1%88/
 func main() {
-	path := "file/simple/write-file/a.txt"
+	path := "basic/file/basic/write-file/a.txt"
 	file, err := os.Create(path)
 	defer file.Close()
 

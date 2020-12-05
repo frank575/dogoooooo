@@ -3,7 +3,7 @@ package main
 
 import (
 	"bufio"
-	"dogoooooo/file/util"
+	"dogoooooo/basic/file/util"
 	"fmt"
 	"math/rand"
 	"os"

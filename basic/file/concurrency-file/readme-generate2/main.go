@@ -3,7 +3,7 @@ package main
 
 import (
 	"bufio"
-	"dogoooooo/file/util"
+	"dogoooooo/basic/file/util"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -23,32 +23,30 @@ func getFileInfo(mx *sync.Mutex, wg *sync.WaitGroup, infoListMap *map[string][]F
 	f, _ := os.Open(*path)
 	r := bufio.NewScanner(f)
 	reg, _ := regexp.Compile(`(?i)toc#.*#toc.*`)
-	fileContext := ""
 
 	for r.Scan() {
-		fileContext += r.Text() + "\n"
-	}
-
-	info := reg.FindAllString(fileContext, 1)
-	if len(info) > 0 {
-		hashReg, _ := regexp.Compile(`(?i)(toc#)|(#toc.*)`)
-		info := hashReg.ReplaceAllString(info[0], "")
-		sp := strings.Split(info, ":::")
-		var name, typeName string
-		if len(sp) > 1 {
-			typeName = sp[0]
-			name = sp[1]
-		} else {
-			typeName = "無分類"
-			name = sp[0]
+		line := reg.FindString(r.Text())
+		if line != "" {
+			hashReg, _ := regexp.Compile(`(?i)(toc#)|(#toc.*)`)
+			info := hashReg.ReplaceAllString(line, "")
+			sp := strings.Split(info, ":::")
+			var name, typeName string
+			if len(sp) > 1 {
+				typeName = sp[0]
+				name = sp[1]
+			} else {
+				typeName = "無分類"
+				name = sp[0]
+			}
+			mx.Lock()
+			if infoList, ok := (*infoListMap)[typeName]; ok {
+				(*infoListMap)[typeName] = append(infoList, FileInfo{name, *path})
+			} else {
+				(*infoListMap)[typeName] = []FileInfo{{name, *path}}
+			}
+			mx.Unlock()
+			break
 		}
-		mx.Lock()
-		if infoList, ok := (*infoListMap)[typeName]; ok {
-			(*infoListMap)[typeName] = append(infoList, FileInfo{name, *path})
-		} else {
-			(*infoListMap)[typeName] = []FileInfo{{name, *path}}
-		}
-		mx.Unlock()
 	}
 
 	wg.Done()
@@ -99,18 +97,46 @@ func createTOC(infoListMap *map[string][]FileInfo, toc *string) {
 	}
 }
 
+func getGTOCSetting() (ignoreList []string, rootPath string) {
+	f, err := os.Open("gtoc.txt")
+	if err != nil {
+		fmt.Println("gtoc not found!")
+	}
+	defer f.Close()
+
+	rootPath = "."
+
+	r := bufio.NewScanner(f)
+	for r.Scan() {
+		line := r.Text()
+		const rp = "ROOT_PATH="
+		const ig = "IGNORE="
+		if rRoot, _ := regexp.Compile(rp); rRoot.MatchString(line) {
+			sp := strings.Split(line, rp)
+			rootPath = strings.TrimSpace(sp[1])
+		} else if rIgnore, _ := regexp.Compile(ig); rIgnore.MatchString(line) {
+			reg, _ := regexp.Compile(",\\s*")
+			sp := strings.Replace(line, ig, "", 1)
+			list := reg.Split(sp, -1)
+			ignoreList = list
+		}
+	}
+
+	return
+}
+
 func main() {
 	var wg sync.WaitGroup
 	var mx sync.Mutex
 	before, after := util.GetReadmeText()
-	ignoreList := util.GetIgnoreFile(".gitignore")
-	//TODO .custom-ignore -> .custom-generate 要更新 ROOT_PATH= 及 IGNORE=
-	ignoreList = append(ignoreList, util.GetIgnoreFile(".custom-ignore")...)
+	ignoreList := util.GetGitIgnoreFile()
+	sIgnoreList, sRootPath := getGTOCSetting()
+	ignoreList = append(ignoreList, sIgnoreList...)
 	strTOC := ""
 	infoListMap := map[string][]FileInfo{}
 
 	wg.Add(1)
-	getTOCList(&wg, &mx, &ignoreList, &infoListMap, ".")
+	getTOCList(&wg, &mx, &ignoreList, &infoListMap, sRootPath)
 	wg.Wait()
 
 	createTOC(&infoListMap, &strTOC)

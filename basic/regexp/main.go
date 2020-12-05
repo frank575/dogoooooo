@@ -23,6 +23,7 @@ func main() {
 	r, _ := regexp.Compile("[A-z]{3}\\s+")
 	// n -> 取幾筆，-1 為全部
 	fmt.Println("r:", r.FindAllString("hello hello", -1)) // [llo ]
+	fmt.Println("r:", r.FindString("he"))                 // ""
 
 	r2, _ := regexp.Compile("am")
 	r2Word := "i\n" +

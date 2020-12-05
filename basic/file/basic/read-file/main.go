@@ -3,7 +3,7 @@ package main
 
 import (
 	"bufio"
-	"dogoooooo/file/util"
+	"dogoooooo/basic/file/util"
 	"fmt"
 	"os"
 )
@@ -14,7 +14,7 @@ import (
 // bufio
 // https://books.studygolang.com/The-Golang-Standard-Library-by-Example/chapter01/01.4.html
 func main() {
-	path := "file/simple/read-file/a.txt"
+	path := "basic/file/basic/read-file/a.txt"
 	file, err := os.Open(path)
 	defer file.Close()
 

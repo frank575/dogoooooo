@@ -1,2 +1,2 @@
 ROOT_PATH=basic
-IGNORE=
+IGNORE=readme-generate2/main.go

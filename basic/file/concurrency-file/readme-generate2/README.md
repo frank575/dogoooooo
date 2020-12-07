@@ -19,8 +19,8 @@
     - ROOT_PATH 爬取的跟目錄
     - IGNORE= 要過濾的檔名
 	```txt
-	ROOT_PATH=src
-	IGNORE=node_modules
+	ROOT_PATH=basic
+	IGNORE=readme-generate2/main.go
 	```
 
 # 如何使用

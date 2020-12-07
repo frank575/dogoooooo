@@ -104,6 +104,7 @@ func writeProjectTOCText(infoListMap *map[string][]FileInfo, toc *string) {
 		for i, title := range projectList {
 			*toc += fmt.Sprintf("  - [%d. %s](%s)\n", i+1, title.name, title.path)
 		}
+		*toc += "---\n"
 	}
 }
 

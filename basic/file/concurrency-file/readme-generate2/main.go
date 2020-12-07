@@ -19,13 +19,33 @@ type FileInfo struct {
 	path string
 }
 
-func getFileInfo(mx *sync.Mutex, wg *sync.WaitGroup, infoListMap *map[string][]FileInfo, path *string) {
+func setFileInfo(mx *sync.Mutex, infoListMap *map[string][]FileInfo, class string, name *string, path *string) {
+	mx.Lock()
+	if infoList, ok := (*infoListMap)[class]; ok {
+		(*infoListMap)[class] = append(infoList, FileInfo{*name, *path})
+	} else {
+		(*infoListMap)[class] = []FileInfo{{*name, *path}}
+	}
+	mx.Unlock()
+}
+
+func getFileInfo(mx *sync.Mutex, wg *sync.WaitGroup, infoListMap *map[string][]FileInfo, path *string, name *string) {
 	f, _ := os.Open(*path)
 	r := bufio.NewScanner(f)
 	reg, _ := regexp.Compile(`(?i)toc#.*#toc.*`)
 
 	for r.Scan() {
-		line := reg.FindString(r.Text())
+		text := r.Text()
+		line := reg.FindString(text)
+		if *name == "README.md" {
+			titleReg, _ := regexp.Compile("^#\\s*.+")
+			if titleReg.MatchString(text) {
+				hashReg, _ := regexp.Compile("^#\\s*")
+				title := hashReg.ReplaceAllString(text, "")
+				setFileInfo(mx, infoListMap, "⭐project", &title, path)
+			}
+			break
+		}
 		if line != "" {
 			hashReg, _ := regexp.Compile(`(?i)(toc#)|(#toc.*)`)
 			info := hashReg.ReplaceAllString(line, "")
@@ -38,13 +58,7 @@ func getFileInfo(mx *sync.Mutex, wg *sync.WaitGroup, infoListMap *map[string][]F
 				typeName = "無分類"
 				name = sp[0]
 			}
-			mx.Lock()
-			if infoList, ok := (*infoListMap)[typeName]; ok {
-				(*infoListMap)[typeName] = append(infoList, FileInfo{name, *path})
-			} else {
-				(*infoListMap)[typeName] = []FileInfo{{name, *path}}
-			}
-			mx.Unlock()
+			setFileInfo(mx, infoListMap, typeName, &name, path)
 			break
 		}
 	}
@@ -60,6 +74,7 @@ func getTOCList(wg *sync.WaitGroup, mx *sync.Mutex, ignoreList *[]string, infoLi
 		file := dirList[i]
 		fileName := file.Name()
 		isDir := file.IsDir()
+		//ext := filepath.Ext(fileName) 取 extension
 		newPath := path + "/" + fileName
 		notIgnore := !util.CheckIgnore(ignoreList, &newPath)
 		isDirAndNotIgnore := isDir && notIgnore
@@ -74,7 +89,7 @@ func getTOCList(wg *sync.WaitGroup, mx *sync.Mutex, ignoreList *[]string, infoLi
 		} else if notDirAndNotIgnore {
 			wg.Add(1)
 			fmt.Println("file:", newPath)
-			go getFileInfo(mx, wg, infoListMap, &newPath)
+			go getFileInfo(mx, wg, infoListMap, &newPath, &fileName)
 		}
 	}
 

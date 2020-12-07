@@ -5,7 +5,7 @@
 go run file/concurrency-file/readme-generate2/main.go
 ```
 
-> **⭐project目錄較有意思**
+> **⭐project目錄較有意思**  
 > [我的筆記 - go 語法篇](https://hackmd.io/IrpAln1QQ4GsVW-_fW6nNA?view)
 
 ---

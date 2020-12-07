@@ -1,4 +1,3 @@
-// toc#file:::(新)併發生成 README 目錄簡述#toc
 package main
 
 import (

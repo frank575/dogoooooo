@@ -13,9 +13,10 @@ go run file/concurrency-file/readme-generate2/main.go
 <!--TOC-->
 - **⭐project**
   - [1. 归并排序 - 併發管道](basic/algorithm/README.md)
+---
 - **1. file**
-  - [1-1. 基本讀取檔案](basic/file/basic/read-file/main.go)
-  - [1-2. (舊 - 廢棄)生成 README 目錄簡述](basic/file/readme-generate/main.go)
+  - [1-1. (舊 - 廢棄)生成 README 目錄簡述](basic/file/readme-generate/main.go)
+  - [1-2. 基本讀取檔案](basic/file/basic/read-file/main.go)
   - [1-3. (新)併發生成 README 目錄簡述](basic/file/concurrency-file/readme-generate2/main.go)
   - [1-4. 基本寫入檔案](basic/file/basic/write-file/main.go)
   - [1-5. 併發寫入自訂檔案數的隨機檔案值(+1)](basic/file/concurrency-file/write-and-read/main.go)

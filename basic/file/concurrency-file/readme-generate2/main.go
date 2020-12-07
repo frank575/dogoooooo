@@ -100,7 +100,7 @@ func writeProjectTOCText(infoListMap *map[string][]FileInfo, toc *string) {
 	const projectKey = "project"
 	if projectList, ok := (*infoListMap)[projectKey]; ok {
 		delete(*infoListMap, projectKey)
-		*toc += fmt.Sprintf("- **%s. %s**\n", "⭐", projectKey)
+		*toc += fmt.Sprintf("- **⭐%s**\n", projectKey)
 		for i, title := range projectList {
 			*toc += fmt.Sprintf("  - [%d. %s](%s)\n", i+1, title.name, title.path)
 		}

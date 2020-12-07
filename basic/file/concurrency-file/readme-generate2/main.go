@@ -42,7 +42,7 @@ func getFileInfo(mx *sync.Mutex, wg *sync.WaitGroup, infoListMap *map[string][]F
 			if titleReg.MatchString(text) {
 				hashReg, _ := regexp.Compile("^#\\s*")
 				title := hashReg.ReplaceAllString(text, "")
-				setFileInfo(mx, infoListMap, "⭐project", &title, path)
+				setFileInfo(mx, infoListMap, "project", &title, path)
 			}
 			break
 		}
@@ -96,8 +96,22 @@ func getTOCList(wg *sync.WaitGroup, mx *sync.Mutex, ignoreList *[]string, infoLi
 	wg.Done()
 }
 
+func writeProjectTOCText(infoListMap *map[string][]FileInfo, toc *string) {
+	const projectKey = "project"
+	if projectList, ok := (*infoListMap)[projectKey]; ok {
+		delete(*infoListMap, projectKey)
+		*toc += fmt.Sprintf("- **%s. %s**\n", "⭐", projectKey)
+		for i, title := range projectList {
+			*toc += fmt.Sprintf("  - [%d. %s](%s)\n", i+1, title.name, title.path)
+		}
+	}
+}
+
 func createTOC(infoListMap *map[string][]FileInfo, toc *string) {
 	var keys []string
+
+	writeProjectTOCText(infoListMap, toc)
+
 	for k := range *infoListMap {
 		keys = append(keys, k)
 	}

@@ -6,7 +6,8 @@ go run file/concurrency-file/readme-generate2/main.go
 ```
 
 - **筆記**
-  - [go 語法](https://hackmd.io/IrpAln1QQ4GsVW-_fW6nNA?view)
+  - [Golang1 基礎](https://hackmd.io/IrpAln1QQ4GsVW-_fW6nNA?view)
+  - [Golang2 周邊設施](https://hackmd.io/IrpAln1QQ4GsVW-_fW6nNA?view)
 
 <!--TOC-->
 - **⭐project**
